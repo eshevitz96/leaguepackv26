@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LeaguePack</string>
+    <string name="title_activity_main">LeaguePack</string>
+    <string name="package_name">com.leaguepack.app</string>
+    <string name="custom_url_scheme">com.leaguepack.app</string>
+</resources>
