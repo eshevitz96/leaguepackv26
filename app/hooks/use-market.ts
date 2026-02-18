@@ -28,12 +28,15 @@ export function useMarket() {
                 'postgres_changes',
                 { event: 'UPDATE', schema: 'public', table: 'teams' },
                 (payload) => {
+                    console.log("Realtime Update Received:", payload.new)
                     const updatedTeam = payload.new as Team
-                    setTeams(current =>
-                        current.map(team =>
+                    setTeams(current => {
+                        const updatedList = current.map(team =>
                             team.id === updatedTeam.id ? updatedTeam : team
                         )
-                    )
+                        // Sort by Price Descending to keep UI stable
+                        return updatedList.sort((a, b) => b.price - a.price)
+                    })
                 }
             )
             .subscribe()

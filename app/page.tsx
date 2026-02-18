@@ -25,7 +25,12 @@ export default function Dashboard() {
   const isNative = useNative()
 
   // Find the top ranked team for the Hero section
-  const topTeam = teams.find(t => t.rank === 1) || teams[0]
+  // 1. Look for Rank 1 CFB Team (Michigan)
+  // 2. Look for ANY Rank 1 Team
+  // 3. Fallback to highest priced team
+  const topTeam = teams.find(t => t.rank === 1 && t.sport === 'CFB')
+    || teams.find(t => t.rank === 1)
+    || teams[0]
 
   return (
     <div className="min-h-screen bg-transparent text-white font-sans selection:bg-emerald-500/30">

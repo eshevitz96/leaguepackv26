@@ -17,18 +17,24 @@ export default function AdminPage() {
         setLoading(true)
         setMessage("")
         try {
-            const { count } = await supabase.from('teams').select('*', { count: 'exact', head: true })
+            // 1. Get existing team IDs
+            const { data: existingTeams } = await supabase.from('teams').select('id')
+            const existingIds = new Set(existingTeams?.map(t => t.id) || [])
 
-            if (count && count > 0) {
-                setMessage(`Database already has ${count} teams. Skipping seed.`)
+            // 2. Filter for missing teams
+            const missingTeams = TEAMS.filter(t => !existingIds.has(t.id))
+
+            if (missingTeams.length === 0) {
+                setMessage(`All teams are already in the database.`)
                 setLoading(false)
                 return
             }
 
-            const { error } = await supabase.from('teams').insert(TEAMS)
+            // 3. Insert missing teams
+            const { error } = await supabase.from('teams').insert(missingTeams)
 
             if (error) throw error
-            setMessage(`Successfully seeded ${TEAMS.length} teams!`)
+            setMessage(`Successfully restored ${missingTeams.length} missing teams (including Michigan)!`)
         } catch (error: any) {
             console.error(error)
             setMessage(`Error: ${error.message}`)
@@ -181,14 +187,14 @@ export default function AdminPage() {
                     </CardHeader>
                     <CardContent>
                         <p className="text-slate-400 mb-4 text-sm">
-                            Initialize the database with the static team data from <code>teams.ts</code>.
+                            Smart Seed: Checks for missing teams (like Michigan) and restores them without affecting existing data.
                         </p>
                         <Button
                             onClick={seedTeams}
                             disabled={loading}
                             className="w-full bg-blue-600 hover:bg-blue-700"
                         >
-                            {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Seed Teams Table"}
+                            {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Smart Seed / Restore Teams"}
                         </Button>
                         {message && message.includes("seeded") && (
                             <div className="mt-4 p-3 bg-slate-950 rounded border border-slate-800 text-sm flex items-center gap-2">
