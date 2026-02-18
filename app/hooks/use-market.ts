@@ -2,42 +2,45 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { TEAMS, Team } from "@/app/data/teams"
-import { calculateTeamPrice } from "@/lib/pricing-engine"
+import { Team } from "@/app/data/teams"
+import { supabase } from "@/lib/supabase/client"
 
 export function useMarket() {
     const [teams, setTeams] = useState<Team[]>([])
 
-    // Initialize prices using the Pricing Engine
     useEffect(() => {
-        const initialTeams = TEAMS.map(team => ({
-            ...team,
-            price: calculateTeamPrice(team),
-            change: 0 // Reset change on initial load
-        }))
-        setTeams(initialTeams)
-    }, [])
+        // 1. Initial Fetch
+        const fetchTeams = async () => {
+            const { data } = await supabase
+                .from('teams')
+                .select('*')
+                .order('price', { ascending: false })
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setTeams(currentTeams =>
-                currentTeams.map(team => {
-                    // Simulate random price movement (-0.5% to +0.5%)
-                    const movement = (Math.random() - 0.5) * 0.015
-                    const newPrice = team.price * (1 + movement)
+            if (data) setTeams(data as Team[])
+        }
 
-                    // Recalculate change from base price (or previous?)
-                    // Let's keep change relative to valid open for now, simplified to visual change
-                    return {
-                        ...team,
-                        price: Number(newPrice.toFixed(2)),
-                        change: Number(((newPrice - team.price) / team.price * 100).toFixed(2))
-                    }
-                })
+        fetchTeams()
+
+        // 2. Realtime Subscription
+        const channel = supabase
+            .channel('market-updates')
+            .on(
+                'postgres_changes',
+                { event: 'UPDATE', schema: 'public', table: 'teams' },
+                (payload) => {
+                    const updatedTeam = payload.new as Team
+                    setTeams(current =>
+                        current.map(team =>
+                            team.id === updatedTeam.id ? updatedTeam : team
+                        )
+                    )
+                }
             )
-        }, 3000) // Update every 3 seconds
+            .subscribe()
 
-        return () => clearInterval(interval)
+        return () => {
+            supabase.removeChannel(channel)
+        }
     }, [])
 
     return teams
