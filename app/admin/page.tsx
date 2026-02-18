@@ -75,10 +75,19 @@ export default function AdminPage() {
                 else losses++
                 const newRecord = `${wins}-${losses}`
 
+                // Market Noise: Randomly drift hype by +/- 0.1
+                // This simulates offseason chatter/sentiment
+                const drift = (Math.random() * 0.2) - 0.1 // Range: -0.1 to +0.1
+                let newHype = (team.hype || 5) + drift
+
+                // Clamp Hype between 1 and 10
+                newHype = Math.max(1, Math.min(10, newHype))
+
                 // Create temp team object for pricing engine
                 const tempTeam = {
                     ...team,
-                    record: newRecord
+                    record: newRecord,
+                    hype: newHype
                 }
 
                 // Calculate new price based on updated record
@@ -92,6 +101,7 @@ export default function AdminPage() {
                     price: Number(newPrice.toFixed(2)),
                     change: Number(changePercent.toFixed(2)),
                     record: newRecord,
+                    hype: Number(newHype.toFixed(2)),
                     updated_at: new Date().toISOString()
                 }
             })

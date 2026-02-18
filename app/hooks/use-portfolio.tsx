@@ -118,6 +118,21 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
                 price: Math.abs(cost),
                 timestamp: new Date().toISOString()
             })
+
+            // 4. Update Market Demand (Hype)
+            // Fetch current team to get hype
+            const { data: teamData } = await supabase.from('teams').select('hype').eq('id', teamId).single()
+            if (teamData) {
+                const currentHype = teamData.hype || 5
+                // Buy = +0.1, Sell = -0.1
+                const impact = cost > 0 ? 0.1 : -0.1
+                const newHype = Math.max(1, Math.min(10, currentHype + impact))
+
+                await supabase.from('teams').update({
+                    hype: newHype,
+                    updated_at: new Date().toISOString()
+                }).eq('id', teamId)
+            }
         } catch (error) {
             console.error("Error syncing trade:", error)
         }
