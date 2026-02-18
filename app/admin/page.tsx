@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { TEAMS } from "@/app/data/teams"
 import { supabase } from "@/lib/supabase/client"
 import { calculateTeamPrice } from "@/lib/pricing-engine"
@@ -11,7 +11,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 export default function AdminPage() {
     const [loading, setLoading] = useState(false)
     const [simulationLoading, setSimulationLoading] = useState(false)
+    const [isAutoSimulating, setIsAutoSimulating] = useState(false)
     const [message, setMessage] = useState("")
+
+    // Auto-Simulate Effect
+    useEffect(() => {
+        let interval: NodeJS.Timeout
+
+        if (isAutoSimulating) {
+            interval = setInterval(() => {
+                simulateMarket()
+            }, 3000) // Run every 3 seconds
+        }
+
+        return () => {
+            if (interval) clearInterval(interval)
+        }
+    }, [isAutoSimulating])
 
     const seedTeams = async () => {
         setLoading(true)
@@ -219,11 +235,26 @@ export default function AdminPage() {
                         </p>
                         <Button
                             onClick={simulateMarket}
-                            disabled={simulationLoading}
+                            disabled={simulationLoading || isAutoSimulating}
                             variant="secondary"
-                            className="w-full bg-emerald-900/20 hover:bg-emerald-900/40 text-emerald-500 border border-emerald-900/50"
+                            className="w-full bg-emerald-900/20 hover:bg-emerald-900/40 text-emerald-500 border border-emerald-900/50 mb-3"
                         >
                             {simulationLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Simulate Week"}
+                        </Button>
+
+                        <Button
+                            onClick={() => setIsAutoSimulating(!isAutoSimulating)}
+                            variant={isAutoSimulating ? "destructive" : "outline"}
+                            className={`w-full ${isAutoSimulating ? 'bg-red-900/20 text-red-500 border-red-900/50' : 'border-emerald-500/20 text-emerald-500'}`}
+                        >
+                            {isAutoSimulating ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Stop Auto-Sim
+                                </>
+                            ) : (
+                                "Start Auto-Sim (3s)"
+                            )}
                         </Button>
                         {message && message.includes("Simulated") && (
                             <div className="mt-4 p-3 bg-slate-950 rounded border border-slate-800 text-sm flex items-center gap-2">
