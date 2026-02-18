@@ -152,12 +152,11 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
         })
     }
 
-    const value = { balance, portfolio, user, isLoading, handleTrade }
-
     return (
-        <PortfolioContext.Provider value= { value } >
-        { children }
-        </PortfolioContext.Provider>
+        <PortfolioContext.Provider value= {{ balance, portfolio, user, isLoading, handleTrade }
+}>
+    { children }
+    </PortfolioContext.Provider>
     )
 }
 
