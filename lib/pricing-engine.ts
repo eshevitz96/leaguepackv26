@@ -13,15 +13,18 @@ import { Team } from "@/app/data/teams";
 export function calculateTeamPrice(team: Team): number {
     // 1. Prestige Component
     // Base scale: $20 - $80 based on prestige (0-100)
-    // Example: Prestige 95 (Bama) -> $77 base
     const prestigeValue = 30 + (team.prestige * 0.6);
 
-    // 2. Performance Component
-    // Parse record "12-2"
+    // 2. Performance Component (Sport Adjusted)
     const [wins, losses] = parseRecord(team.record);
 
-    const winValue = wins * 5;      // $5 per win
-    const lossPenalty = losses * 3; // -$3 per loss
+    // CFB: Fewer games, so each win is worth MORE.
+    // CBB: More games, so each win is worth LESS (to normalize).
+    const winMultiplier = team.sport === 'CFB' ? 10 : 3.5;
+    const lossPenalty = team.sport === 'CFB' ? 5 : 2;
+
+    const winValue = wins * winMultiplier;
+    const lossValue = losses * lossPenalty;
 
     // Rank Bonus: (26 - Rank) * 2. Example: Rank 1 gets $50 bonus. Unranked gets $0.
     let rankBonus = 0;
@@ -29,13 +32,10 @@ export function calculateTeamPrice(team: Team): number {
         rankBonus = (26 - team.rank) * 2;
     }
 
-    const performanceValue = winValue - lossPenalty + rankBonus;
+    const performanceValue = winValue - lossValue + rankBonus;
 
     // 3. Hype Component
     // 1-10 scale. 5 is neutral. Each point above 5 adds 5% value.
-    // Example: Hype 8 -> 1.15x multiplier on the raw total? 
-    // Or just a flat additive value? Let's go with additive for stability first.
-    // Hype 10 -> +$30. Hype 1 -> -$15.
     const hypeValue = (team.hype - 5) * 5;
 
     // Total Calculation
