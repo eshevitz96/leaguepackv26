@@ -35,6 +35,7 @@ import { MobileNav } from "@/components/mobile-nav";
 import { MobileHeader } from "@/components/mobile-header";
 
 import { PortfolioProvider } from "@/app/hooks/use-portfolio";
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -50,6 +51,7 @@ export default function RootLayout({
           <MobileHeader />
           {children}
           <MobileNav />
+          <Toaster richColors position="top-center" />
         </PortfolioProvider>
       </body>
     </html>

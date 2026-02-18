@@ -2,6 +2,7 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode } from "react"
 import { supabase } from "@/lib/supabase/client"
+import { toast } from "sonner"
 
 export interface PortfolioItem {
     quantity: number
@@ -146,6 +147,13 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
             // DB Sync (Buy/Partial Sell)
             if (user) {
                 syncTrade(user.id, teamId, cost, newQuantity, newAvgCost)
+                    .catch(err => {
+                        toast.error("Transaction Failed", {
+                            description: err.message || "Database rejected the update.",
+                            duration: 4000,
+                        })
+                        // Revert optimistic update? (Optional, but good practice. For now, just alert).
+                    })
             }
 
             return { ...prev, [teamId]: { quantity: newQuantity, avgCost: newAvgCost } }
