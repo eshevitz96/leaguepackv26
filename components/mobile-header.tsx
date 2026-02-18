@@ -2,7 +2,8 @@
 
 import { useNative } from "@/app/hooks/use-native"
 import { usePortfolio } from "@/app/hooks/use-portfolio"
-import { Bell } from "lucide-react"
+import { Bell, Users, Trophy } from "lucide-react"
+import { AuthModal } from "@/components/auth-modal"
 
 import { CustomLogo } from "@/components/custom-logo"
 
