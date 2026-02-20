@@ -5,8 +5,6 @@ import { usePortfolio } from "@/app/hooks/use-portfolio"
 import { Bell, Users, Trophy } from "lucide-react"
 import { AuthModal } from "@/components/auth-modal"
 
-import { CustomLogo } from "@/components/custom-logo"
-
 export function MobileHeader() {
     const isNative = useNative()
     const { balance, user } = usePortfolio()
@@ -17,7 +15,6 @@ export function MobileHeader() {
         <header className="sticky top-0 z-50 bg-[#050505]/80 backdrop-blur-md border-b border-white/5 pb-4 pt-safe-header">
             <div className="flex items-center justify-between px-6 mb-4">
                 <div className="flex items-center gap-2">
-                    <CustomLogo className="w-8 h-8 text-emerald-500" />
                     <span className="text-xl font-black tracking-tighter text-white">
                         LEAGUE<span className="text-emerald-500">PACK</span>
                     </span>

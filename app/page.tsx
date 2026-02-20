@@ -18,7 +18,6 @@ import { MarketHero } from "@/components/market-hero"
 
 import { useNative } from "@/app/hooks/use-native"
 import { MobileHeroCarousel } from "@/components/mobile-hero-carousel"
-import { CustomLogo } from "@/components/custom-logo"
 
 export default function Dashboard() {
   const teams = useMarket()
@@ -41,7 +40,6 @@ export default function Dashboard() {
         {!isNative && (
           <header className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="text-center md:text-left flex items-center justify-center md:justify-start gap-4">
-              <CustomLogo className="w-12 h-12 text-emerald-500" />
               <div>
                 <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-2">
                   LEAGUE<span className="text-emerald-500">PACK</span>
