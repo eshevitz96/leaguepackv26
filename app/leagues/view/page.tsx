@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect, Suspense } from "react"
 import { supabase } from "@/lib/supabase/client"
+import { TEAMS } from "@/app/data/teams"
 import { useParams, useSearchParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -54,11 +55,12 @@ function LeagueDetailContent() {
                 .select('*')
                 .in('user_id', userIds)
 
-            const { data: teams } = await supabase.from('teams').select('id, price')
+            const { data: teamsData, error: teamsError } = await supabase.from('teams').select('id, price')
+            const finalTeams = (teamsData && teamsData.length > 0) ? teamsData : TEAMS
 
             // Map prices
             const priceMap = new Map()
-            teams?.forEach((t: any) => priceMap.set(t.id, t.price))
+            finalTeams?.forEach((t: any) => priceMap.set(t.id, t.price))
 
             // Rank mapping
             const leaderboard = memberData.map((m: any) => {

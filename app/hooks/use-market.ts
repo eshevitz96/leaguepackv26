@@ -2,21 +2,29 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Team } from "@/app/data/teams"
+import { Team, TEAMS } from "@/app/data/teams"
 import { supabase } from "@/lib/supabase/client"
 
 export function useMarket() {
-    const [teams, setTeams] = useState<Team[]>([])
+    const [teams, setTeams] = useState<Team[]>(TEAMS) // Initialize with static teams
 
     useEffect(() => {
         // 1. Initial Fetch
         const fetchTeams = async () => {
-            const { data } = await supabase
-                .from('teams')
-                .select('*')
-                .order('price', { ascending: false })
+            try {
+                const { data, error } = await supabase
+                    .from('teams')
+                    .select('*')
+                    .order('price', { ascending: false })
 
-            if (data) setTeams(data as Team[])
+                if (error) throw error;
+                if (data && data.length > 0) {
+                    setTeams(data as Team[])
+                }
+            } catch (error) {
+                console.error("Error fetching teams from Supabase, using local data:", error)
+                // We already have TEAMS as initial state, so no need to doing anything here
+            }
         }
 
         fetchTeams()
